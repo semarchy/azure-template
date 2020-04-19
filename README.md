@@ -13,10 +13,10 @@ az-xdm-instance-add-database.sh
 `
 This script:
 * Uses env variables for commonly used values if not available in the command.
-** XDM_RESOURCE_GROUP
-** XDM_ADMIN_PASSWORD
-** XDM_DB_SERVER_PASSWORD
-** XDM_DB_PASSWORD
+    * XDM_RESOURCE_GROUP
+    * XDM_ADMIN_PASSWORD
+    * XDM_DB_SERVER_PASSWORD
+    * XDM_DB_PASSWORD
 * Prompts for passwords when they are not passed on the command line and the env variable is not set.
 * Adds databases to the existing deployment for SQL Server using a template
 * Adds databases to the existing PostgreSQL machine using SQL scripting, started on the active instance
@@ -30,6 +30,11 @@ az-xdm-instance-upgrade.sh
 	--admin-password=admin-password
 	--xdm-version=xdm-version
 `
+This script:
+* Uses env variables for commonly used values if not available in the command.
+    * XDM_RESOURCE_GROUP
+    * XDM_ADMIN_PASSWORD
+* Prompts for passwords when they are not passed on the command line and the env variable is not set.
 
 ## Restart an existing xDM instance
 The administrator can also downloads and runs the following script in the Azure Portal within his tenant to restart the instance after a change:
@@ -38,4 +43,9 @@ az-xdm-instance-restart.sh
 	--resource-group  resource-group-name
 	--admin-password admin-password
 `
+This script:
+* Uses env variables for commonly used values if not available in the command.
+    * XDM_RESOURCE_GROUP
+    * XDM_ADMIN_PASSWORD
+* Prompts for passwords when they are not passed on the command line and the env variable is not set.
 
