@@ -21,7 +21,7 @@ These scripts support the following operations:
 * Upgrade the instance
 * Restart the instance
 
-## Add a new database: az-xdm-instance-add-database ##
+### Add a new database: az-xdm-instance-add-database ###
 
 The az-xdm-instance-add-database script creates a new database/schema - for example, for a new data location - and then automatically configures and restarts the Semarchy instance to take into account this new database.
 
@@ -51,7 +51,7 @@ Optional Parameters:
 * The script adds a database to the *Azure SQL Database Server* (SQL Server) configured in the Semarchy xDM instance or adds a database to the existing *Azure Database for PostgreSQL Server* using SQL scripting.
 * The script adds and persists datasource to the existing configuration using Shell scripting, started on the active virtual machine instance.
 
-## Upgrade the instance: az-xdm-instance-upgrade ##
+### Upgrade the instance: az-xdm-instance-upgrade ###
 
 The az-xdm-instance-upgrade script upgrades the Semarchy instance to a given version.
 
@@ -82,7 +82,7 @@ Optional Parameters:
 * The script prompts for passwords when they are not passed on the command line and the environments variables are not set.
 
 
-## Restart the instance: az-xdm-instance-upgrade ##
+### Restart the instance: az-xdm-instance-upgrade ###
 
 The az-xdm-instance-upgrade script restarts the Semarchy instance, for example after modifying its configuration.
 
