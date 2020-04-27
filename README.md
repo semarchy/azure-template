@@ -40,8 +40,21 @@ This script:
 The administrator can also downloads and runs the following script in the Azure Portal within his tenant to restart the instance after a change:
 `
 az-xdm-instance-restart.sh 
-	--resource-group  resource-group-name
-	--admin-password admin-password
+	--resource-group=resource-group-name
+	--admin-password=admin-password
+`
+This script:
+* Uses env variables for commonly used values if not available in the command.
+    * XDM_RESOURCE_GROUP
+    * XDM_ADMIN_PASSWORD
+* Prompts for passwords when they are not passed on the command line and the env variable is not set.
+
+## Reset admin password xDM instance
+The administrator can also downloads and runs the following script in the Azure Portal within his tenant to change the instance admin password:
+`
+az-xdm-instance-restart.sh 
+	--resource-group=resource-group-name
+	--admin-password=new-admin-password
 `
 This script:
 * Uses env variables for commonly used values if not available in the command.
