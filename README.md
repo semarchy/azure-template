@@ -112,14 +112,14 @@ Optional Parameters:
 * The script uses the following environment variables for commonly used values if not available in the command: `XDM_RESOURCE_GROUP` and `XDM_ADMIN_PASSWORD`.
 * The script prompts for passwords when they are not passed on the command line and the environments variables are not set.
 
-## Change the instance admin password
+### Change the instance admin password ###
 
-The az-xdm-instance-reset-admin script change admin password of the Semarchy instance.
+The az-xdm-instance-reset-admin script changes the admin password of the Semarchy instance.
 
 ```
 az-xdm-instance-reset-admin.sh 
-	[--resource-group=resource-group-name]
-	[--admin-password=new-admin-password]
+    [--resource-group=resource-group-name]
+    [--admin-password=new-admin-password]
 ```
 
 **Example**:
