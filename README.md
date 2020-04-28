@@ -17,9 +17,10 @@ To install the template:
 
 These scripts support the following operations:
 
-* Add a new database to the instance
-* Upgrade the instance
-* Restart the instance
+* [Add a new database to the instance](#add-a-new-database-az-xdm-instance-add-database)
+* [Upgrade the instance](#upgrade-the-instance-az-xdm-instance-upgrade)
+* [Restart the instance](#restart-the-instance-az-xdm-instance-upgrade)
+* [Change the admin password](#change-the-instance-admin-password)
 
 ### Add a new database: az-xdm-instance-add-database ###
 
