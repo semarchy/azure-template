@@ -126,7 +126,7 @@ fi
 fAddress=$(az network public-ip show --name $publicIpName --resource-group $resourceGroupName | jq -r '.ipAddress')
 echo " --> Public IP found. Checking $fProtocol://$fAddress:$fPort/ ..."
 
-httpStatus=$(curl --insecure -s -o /dev/null -w "%{http_code}" -u $serverUser:$serverPassword $fProtocol://$fAddress:$fPort/manager/text/list)
+httpStatus=$(curl --insecure -s -o /dev/null -w "%{http_code}" -u "$serverUser:$serverPassword" $fProtocol://$fAddress:$fPort/manager/text/list)
 
 if (( $httpStatus != 200 )); then
     echo " !! Invalid admin credentials (response status: $httpStatus)."
@@ -152,8 +152,8 @@ az vm extension set \
   --name customScript \
   --publisher Microsoft.Azure.Extensions \
   --force-update \
-  --protected-settings '{"commandToExecute": "/usr/local/xdm/bin/update-datasource-ubuntu.sh --db-type='$dbType' --server-user='$serverUser' --server-password='$serverPassword' --db-admin='$databaseAdminUser' --db-password='$databaseServerPassword' --ds-password='$databasePassword' --db-server='$databaseServerName' --ds-user='$databaseUser'"}'
-echo " -- Active VM updated."
+  --protected-settings '{"commandToExecute": "/usr/local/xdm/bin/update-datasource-ubuntu.sh --db-type='$dbType' --server-user=\"'$serverUser'\" --server-password=\"'$serverPassword'\" --db-admin=\"'$databaseAdminUser'\" --db-password=\"'$databaseServerPassword'\" --ds-password=\"'$databasePassword'\" --db-server=\"'$databaseServerName'\" --ds-user=\"'$databaseUser'\""}'
+echo " -- Active VM updatSed."
 
 echo " --> Restarting scale set..."
 az vmss reimage --name $scaleSetName --resource-group $resourceGroupName

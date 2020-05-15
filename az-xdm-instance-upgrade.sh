@@ -118,7 +118,7 @@ fi
 fAddress=$(az network public-ip show --name $publicIpName --resource-group $resourceGroupName | jq -r '.ipAddress')
 echo " --> Public IP found. Checking $fProtocol://$fAddress:$fPort/ ..."
 
-httpStatus=$(curl --insecure -s -o /dev/null -w "%{http_code}" -u $serverUser:$serverPassword $fProtocol://$fAddress:$fPort/manager/text/list)
+httpStatus=$(curl --insecure -s -o /dev/null -w "%{http_code}" -u "$serverUser:$serverPassword" $fProtocol://$fAddress:$fPort/manager/text/list)
 
 if (( $httpStatus != 200 )); then
     echo " !! Invalid admin credentials (response status: $httpStatus)."
@@ -131,7 +131,7 @@ echo " --> Upgrade can proceed. Moving current xDM instance to new version..."
 az vm image terms accept --publisher $imagePublisher --offer $imageOffer --plan $planName
 
 echo " --> Updating scale set image..."
-az vmss update --name $scaleSetName --resource-group $resourceGroupName --set virtualMachineProfile.storageProfile.imageReference.sku=$planName --set virtualMachineProfile.storageProfile.imageReference.version=$imageVersion
+az vmss update --name $scaleSetName --resource-group $resourceGroupName --set virtualMachineProfile.storageProfile.imageReference.version=$imageVersion
 echo " -- Scale set updated."
 
 echo " --> Deleting obsolete active VM ($vmActiveId)..."
@@ -165,8 +165,8 @@ echo "####################################"
 
 az vm create --resource-group $resourceGroupName \
     --name $vmName \
-    --admin-password $serverPassword \
-    --admin-username $serverUser \
+    --admin-password "$serverPassword" \
+    --admin-username "$serverUser" \
     --authentication-type password \
     --computer-name $(echo $currentVmProps | jq -r '.osProfile.computerName') \
     --image $imagePublisher:$imageOffer:$planName:$imageVersion \
@@ -193,7 +193,7 @@ printf "az vm extension set \\
   --vm-name $vmName \\
   --name customScript \\
   --publisher Microsoft.Azure.Extensions \\
-  --protected-settings {\"commandToExecute\": \"/usr/local/xdm/bin/upgrade-instance-ubuntu.sh --storage-name=$storageName --storage-key=<storage key> --storage-folder=xdm-assets --server-user=$serverUser --server-password=<server password>\"}\n"
+  --protected-settings {\"commandToExecute\": \"/usr/local/xdm/bin/upgrade-instance-ubuntu.sh --storage-name=\"$storageName\" --storage-key=<storage key> --storage-folder=xdm-assets --server-user=\"$serverUser\" --server-password=<server password>\"}\n"
 
 echo "####################################"
 
@@ -202,7 +202,7 @@ az vm extension set \
   --vm-name $vmName \
   --name customScript \
   --publisher Microsoft.Azure.Extensions \
-  --protected-settings '{"commandToExecute": "/usr/local/xdm/bin/upgrade-instance-ubuntu.sh --storage-name='$storageName' --storage-key='$storageKey' --storage-folder=xdm-assets --server-user='$serverUser' --server-password='$serverPassword'"}'
+  --protected-settings '{"commandToExecute": "/usr/local/xdm/bin/upgrade-instance-ubuntu.sh --storage-name=\"'$storageName'\" --storage-key=\"'$storageKey'\" --storage-folder=xdm-assets --server-user=\"'$serverUser'\" --server-password=\"'$serverPassword'\""}'
 
 echo " -- Upgrade script completed."
 

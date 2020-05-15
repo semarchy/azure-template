@@ -78,8 +78,8 @@ vmName=$(echo $currentVmProps | jq -r '.name')
 
 az vm user update --resource-group $resourceGroupName \
   --name $vmName \
-  --username $serverUser \
-  --password $serverPassword
+  --username "$serverUser" \
+  --password "$serverPassword"
 
 az vm extension set \
   --resource-group $resourceGroupName \
@@ -87,11 +87,11 @@ az vm extension set \
   --name customScript \
   --publisher Microsoft.Azure.Extensions \
   --force-update \
-  --protected-settings '{"commandToExecute": "/usr/local/xdm/bin/update-admin-password-ubuntu.sh --server-user='$serverUser' --server-password='$serverPassword'"}'
+  --protected-settings '{"commandToExecute": "/usr/local/xdm/bin/update-admin-password-ubuntu.sh --server-user=\"'$serverUser'\" --server-password=\"'$serverPassword'\""}'
 echo " -- Active VM updated."
 
 echo " --> Change admin password on scale set..."
-az vmss update --name $scaleSetName --resource-group $resourceGroupName --set virtualMachineProfile.osProfile.adminPassword=$serverPassword
+az vmss update --name $scaleSetName --resource-group $resourceGroupName --set virtualMachineProfile.osProfile.adminPassword="$serverPassword"
 az vmss update --name $scaleSetName --resource-group $resourceGroupName --set upgradePolicy.mode=Manual
 az vmss extension set \
   --resource-group $resourceGroupName \
@@ -100,7 +100,7 @@ az vmss extension set \
   --extension-instance-name config-passives \
   --publisher Microsoft.Azure.Extensions \
   --no-auto-upgrade true \
-  --protected-settings '{"commandToExecute": "bash /usr/local/xdm/bin/init-ss-ubuntu.sh --storage-name='$storageName' --storage-key='$storageKey' --storage-folder=xdm-assets --server-user='$serverUser' --server-password='$serverPassword'"}'
+  --protected-settings '{"commandToExecute": "/usr/local/xdm/bin/init-ss-ubuntu.sh --storage-name='$storageName' --storage-key=\"'$storageKey'\" --storage-folder=xdm-assets --server-user=\"'$serverUser'\" --server-password=\"'$serverPassword'\""}'
 az vmss update --name $scaleSetName --resource-group $resourceGroupName --set upgradePolicy.mode=Automatic
 echo " -- Scale set updated."
 
