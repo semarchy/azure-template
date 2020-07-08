@@ -42,6 +42,12 @@ then
     echo
 fi
 
+if ! $(az group exists --name $resourceGroupName)
+then 
+	echo " !! resource group $resourceGroupName not found."
+    exit 1;
+fi
+
 scaleSetName=$(az resource list --tag xdm-resource-type=ss-passive --query "[?resourceGroup=='$resourceGroupName'].name" -o tsv)
 if [[ -z $scaleSetName ]]
 then

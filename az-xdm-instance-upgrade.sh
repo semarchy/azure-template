@@ -47,6 +47,12 @@ fi
 
 export AZURE_HTTP_USER_AGENT='pid-b196565f-e39e-5007-9fb7-63dd46818292'
 
+if ! $(az group exists --name $resourceGroupName)
+then 
+	echo " !! resource group $resourceGroupName not found."
+    exit 1;
+fi
+
 versionDigits=(${version//./ })
 
 imagePublisher=semarchy

@@ -19,7 +19,7 @@ These scripts support the following operations:
 
 * [Add a new database to the instance](#add-a-new-database-az-xdm-instance-add-database)
 * [Upgrade the instance](#upgrade-the-instance-az-xdm-instance-upgrade)
-* [Restart the instance](#restart-the-instance-az-xdm-instance-upgrade)
+* [Restart the instance](#restart-the-instance-az-xdm-instance-restart)
 * [Change the admin password](#change-the-instance-admin-password)
 
 ### Add a new database: az-xdm-instance-add-database ###
@@ -89,9 +89,9 @@ Optional Parameters:
 * The script prompts for passwords when they are not passed on the command line and the environments variables are not set.
 
 
-### Restart the instance: az-xdm-instance-upgrade ###
+### Restart the instance: az-xdm-instance-restart ###
 
-The az-xdm-instance-upgrade script restarts the Semarchy instance, for example after modifying its configuration.
+The az-xdm-instance-restart script restarts the Semarchy instance, for example after modifying its configuration.
 
 ```
 az-xdm-instance-restart.sh
