@@ -3,7 +3,7 @@
 # Help menu
 print_help() {
 cat <<-HELP
-Usage: $0 [--resource-group=resource-group-name] [--xdm-version=version] [--admin-password=admin-password]
+Usage: $0 <--xdm-version=version> [--resource-group=resource-group-name] [--admin-password=admin-password]
 HELP
 exit 1
 }
@@ -103,35 +103,14 @@ then
 fi
 echo " -- Storage found ($storageName)."
 
-# check password is ok
-appGwName=$(az resource list --tag xdm-resource-type=app-gw --query "[?resourceGroup=='$resourceGroupName'].name" -o tsv)
-if [[ -z $appGwName ]]
-then
-    echo " !! Application gateway not found in $resourceGroupName."
-    exit 1;
-fi
-echo " -- Application gateway found ($appGwName)."
-
-fPort=$(az network application-gateway frontend-port show --gateway-name $appGwName --resource-group $resourceGroupName --name appGwFrontendPortActive | jq '.port')
-fProtocol=$(az network application-gateway http-listener show --gateway-name $appGwName --resource-group $resourceGroupName --name appGwHttpListenerActive | jq -r '.protocol' | tr '[:upper:]' '[:lower:]')
-
-publicIpName=$(az resource list --tag xdm-resource-type=public-ip --query "[?resourceGroup=='$resourceGroupName'].name" -o tsv)
-if [[ -z $publicIpName ]]
-then
-    echo " !! Public IP not found in $resourceGroupName."
-    exit 1; 
-fi
-fAddress=$(az network public-ip show --name $publicIpName --resource-group $resourceGroupName | jq -r '.ipAddress')
-echo " --> Public IP found. Checking $fProtocol://$fAddress:$fPort/ ..."
-
-httpStatus=$(curl --insecure -s -o /dev/null -w "%{http_code}" -u "$serverUser:$serverPassword" $fProtocol://$fAddress:$fPort/manager/text/list)
-
-if (( $httpStatus != 200 )); then
-    echo " !! Invalid admin credentials (response status: $httpStatus)."
-    exit 1;
-else 
-    echo " -- Admin credentials are valid."
-fi
+#check admin credentials
+vmName=$(echo $currentVmProps | jq -r '.name')
+az vm extension set \
+  --resource-group $resourceGroupName \
+  --vm-name $vmName \
+  --name customScript \
+  --publisher Microsoft.Azure.Extensions \
+  --protected-settings '{"commandToExecute": "/usr/local/xdm/bin/check-admin-credentials-ubuntu.sh --server-user=\"'$serverUser'\" --server-password=\"'$serverPassword'\""}'
 
 echo " --> Upgrade can proceed. Moving current xDM instance to new version..."
 az vm image terms accept --publisher $imagePublisher --offer $imageOffer --plan $planName
@@ -146,7 +125,6 @@ az resource wait --deleted --ids $vmActiveId
 echo " -- Obsolete active VM deleted."
 
 echo " --> Re-creating Active VM..."
-vmName=$(echo $currentVmProps | jq -r '.name')
 
 echo "########## Running script ##########"
 

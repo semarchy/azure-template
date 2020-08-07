@@ -69,35 +69,6 @@ currentVmProps=$(az vm show --ids $vmActiveId)
 serverUser=$(echo $currentVmProps | jq -r '.osProfile.adminUsername')
 vmName=$(echo $currentVmProps | jq -r '.name')
 
-# check password is ok
-appGwName=$(az resource list --tag xdm-resource-type=app-gw --query "[?resourceGroup=='$resourceGroupName'].name" -o tsv)
-if [[ -z $appGwName ]]
-then
-    echo " !! Application gateway not found in $resourceGroupName."
-    exit 1;
-fi
-
-fPort=$(az network application-gateway frontend-port show --gateway-name $appGwName --resource-group $resourceGroupName --name appGwFrontendPortActive | jq '.port')
-fProtocol=$(az network application-gateway http-listener show --gateway-name $appGwName --resource-group $resourceGroupName --name appGwHttpListenerActive | jq -r '.protocol' | tr '[:upper:]' '[:lower:]')
-
-publicIpName=$(az resource list --tag xdm-resource-type=public-ip --query "[?resourceGroup=='$resourceGroupName'].name" -o tsv)
-if [[ -z $publicIpName ]]
-then
-    echo " !! Public IP not found in $resourceGroupName."
-    exit 1; 
-fi
-fAddress=$(az network public-ip show --name $publicIpName --resource-group $resourceGroupName | jq -r '.ipAddress')
-echo " --> Public IP found. Checking $fProtocol://$fAddress:$fPort/ ..."
-
-httpStatus=$(curl --insecure -s -o /dev/null -w "%{http_code}" -u "$serverUser:$serverPassword" $fProtocol://$fAddress:$fPort/manager/text/list)
-
-if (( $httpStatus != 200 )); then
-    echo " !! Invalid admin credentials (response status: $httpStatus)."
-    exit 1;
-else 
-    echo " -- Admin credentials are valid."
-fi
-
 echo " --> Restarting active VM..."
 az vm extension set \
   --resource-group $resourceGroupName \
