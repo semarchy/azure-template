@@ -45,7 +45,7 @@ then
     echo
 fi
 
-export AZURE_HTTP_USER_AGENT='pid-b196565f-e39e-5007-9fb7-63dd46818292'
+export AZURE_HTTP_USER_AGENT='pid-ee0cf0e2-6610-4481-9d19-e1db68621749-partnercenter'
 
 if ! $(az group exists --name $resourceGroupName)
 then 
