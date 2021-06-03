@@ -58,9 +58,12 @@ The az-xdm-instance-upgrade script upgrades the Semarchy instance to a given ver
 
 ```
 az-xdm-instance-upgrade.sh
-    [--resource-group=resource-group-name]
     [--admin-password=admin-password]
-    [--xdm-version=version]
+    [--db-server-password=db-server-password]
+    [--repo-ro-password=repo-ro-password]
+    [--no-backup]
+    --resource-group=resource-group-name
+    --xdm-version=version
 ```
 
 Example: Upgrade the instance in the xdm-production resource group to version 5.2.3.
@@ -75,17 +78,26 @@ Example: Upgrade the instance in the xdm-production resource group to latest 5.1
 az-xdm-instance-upgrade.sh --resource-group=xdm-production --xdm-version=5.1
 ```
 
+Example: Upgrade the instance in the xdm-production resource group to latest 5.3 patch version without creating backup resources.
+
+```
+az-xdm-instance-upgrade.sh --resource-group=xdm-production --xdm-version=5.3 --no-backup
+```
+
 Optional Parameters:
 
 * `--resource-group`: The resource group into which the instance is deployed. The resource group specified in the `XDM_RESOURCE_GROUP` environment variable is used by default.
 * `--admin-password`: The password of the virtual machine administrator. The password specified in the `XDM_ADMIN_PASSWORD` environment variable is used by default.
+* `--db-server-password`: The password of the database administrator. The password specified in the `XDM_DB_SERVER_PASSWORD` environment variable is used by default.
+* `--repo-ro-password`: The password of the repository read-only user (only applicable to 5.3+). The password specified in the `XDM_RO_USER_PASSWORD` environment variable is used by default.
+* `--no-backup`: Use this option to skip the creation of databases, virtual machines and scale set images backup resources. The backup is activated by default.
 * `--xdm-version`: The Semarchy version to which you want to upgrade. This version may be provided in the following format:
     * A 2 digits minor version of Semarchy (e.g.: 5.2): In that case, the template upgrades the latest patch of the minor version specified.
     * A 3 digits patch version of Semarchy (e.g.: 5.2.1). In that case, the template upgrades to that product version.
     * If you do not specify the version, then the latest patch of the currently deployed minor version is installed
 
 **NOTES**:
-* The script uses the following environment variables for commonly used values if not available in the command: `XDM_RESOURCE_GROUP` and `XDM_ADMIN_PASSWORD`.
+* The script uses the following environment variables for commonly used values if not available in the command: `XDM_RESOURCE_GROUP`, `XDM_ADMIN_PASSWORD`, `XDM_DB_SERVER_PASSWORD` and `XDM_RO_USER_PASSWORD`.
 * The script prompts for passwords when they are not passed on the command line and the environments variables are not set.
 
 
