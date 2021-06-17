@@ -3,17 +3,17 @@
 # Help menu
 print_help() {
 cat <<-HELP
-Usage: $0 <--xdm-version=version> <--resource-group=resource-group-name> [--admin-password=admin-password] [--db-server-password=db-server-password] [--repo-ro-password=repo-ro-password] [--no-backup]
+Usage: $0 <--xdm-version=version> <--resource-group=resource-group-name> [--admin-password=admin-password] [--db-server-password=db-server-password] [--repo-ro-password=repo-ro-password] [--backup]
 HELP
 exit 1
 }
 
-serverPassword=$XDM_ADMIN_PASSWORD
 resourceGroupName=$XDM_RESOURCE_GROUP
+serverPassword=$XDM_ADMIN_PASSWORD
 databaseServerPassword=$XDM_DB_SERVER_PASSWORD
 repositoryReadOnlyUserPassword=$XDM_RO_USER_PASSWORD
 
-backup=true
+backup=false
 # Parse Command Line Arguments
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -32,8 +32,8 @@ while [ "$#" -gt 0 ]; do
     --repo-ro-password=*)
         repositoryReadOnlyUserPassword="${1#*=}"
         ;;
-    --no-backup*)
-        backup=false
+    --backup*)
+        backup=true
         ;;
     --help) print_help;;
     *)
@@ -74,7 +74,7 @@ imageOffer=xdm-solution-vm
 if (( ${#versionDigits[@]} == 3 )); then
     if [[ ${versionDigits[2]} = "preview" ]]; then
         planName=${versionDigits[0]}'_'${versionDigits[1]}'_preview'
-        imageVersion=0.100.5
+        imageVersion=1.200.3
         imageOffer=xdm-solution-vm-preview
     else
         planName=${versionDigits[0]}'_'${versionDigits[1]}
@@ -140,8 +140,18 @@ now=$(date --iso-8601=seconds)
 
 echo " --> Checking admin credentials..."
 vmName=$(echo $currentVmProps | jq -r '.name')
-az vm extension set \
-  --resource-group $resourceGroupName \
+
+echo "########## Running script ##########"
+
+printf "az vm extension set --resource-group $resourceGroupName \\
+    --vm-name $vmName \\
+    --name customScript \\
+    --publisher Microsoft.Azure.Extensions \\
+    --protected-settings '{\"commandToExecute\": \"/usr/local/xdm/bin/check-admin-credentials-ubuntu.sh --server-user=\"'$serverUser'\" --server-password=\"<password>\"\"}'\n"
+
+echo "####################################"
+
+az vm extension set --resource-group $resourceGroupName \
   --vm-name $vmName \
   --name customScript \
   --publisher Microsoft.Azure.Extensions \
@@ -162,6 +172,26 @@ if [[ ${versionDigits[1]} = ${oldVersionDigits[1]} ]]; then
   echo " --> Executing a minor upgrade..."
 elif (( versionDigits[1] > oldVersionDigits[1] )); then
   if [[ ${versionDigits[1]} = 3 ]]; then
+
+    if ! $backup ; then
+      while true; do
+          read -p "Are you performing the upgrade on a cloned or a backed up instance? " yn
+          case $yn in
+              [Yy]* ) break;;
+              [Nn]* ) while true; do
+                        read -p "Are you sure you want to proceed without cloning or adding --backup option? " yn
+                        case $yn in
+                            [Yy]* ) break;;
+                            [Nn]* ) exit;;
+                            * ) echo "Please answer yes or no.";;
+                        esac
+                      done
+                      break;;
+              * ) echo "Please answer yes or no.";;
+          esac
+      done
+    fi
+
     echo " --> Executing a major upgrade..."
     majorUpgrade=true
     if [[ -z $databaseServerPassword ]]
@@ -193,11 +223,36 @@ if $backup ; then
   echo " --> Creating backup for databases..."
 
   if [[ $dbType = "PostgreSQL" ]]; then
-    az postgres server restore --restore-point-in-time $now --resource-group $resourceGroupName --source-server $databaseServerName --name $databaseServerName-backup
+    echo "########## Running script ##########"
+
+    printf "az postgres server restore --restore-point-in-time $now \\
+        --resource-group $resourceGroupName \\
+        --source-server $databaseServerName \\
+        --name $databaseServerName-backup\n"
+
+    echo "####################################"
+
+    az postgres server restore --restore-point-in-time $now \
+        --resource-group $resourceGroupName \
+        --source-server $databaseServerName \
+        --name $databaseServerName-backup
   else
     for databaseName in $(az sql db list --ids $dbServerId | jq -r '.[] | select(.name != "master") | .name '); do
-      echo $databaseName
-      az sql db restore --time $now --resource-group $resourceGroupName --server $databaseServerName --name $databaseName --dest-name $databaseName-backup
+      echo "########## Running script ##########"
+
+      printf "az sql db restore --time $now \\
+          --resource-group $resourceGroupName \\
+          --server $databaseServerName \\
+          --name $databaseName \\
+          --dest-name $databaseName-backup\n"
+
+      echo "####################################"
+
+      az sql db restore --time $now \
+          --resource-group $resourceGroupName \
+          --server $databaseServerName \
+          --name $databaseName \
+          --dest-name $databaseName-backup
     done
   fi
 
@@ -311,8 +366,18 @@ fi
 if $majorUpgrade ; then
   echo " --> Saving semarchy.xml and tomcat-users.xml to semarchy.xml-old and tomcat-users.xml-old..."
   vmName=$(echo $currentVmProps | jq -r '.name')
-  az vm extension set \
-    --resource-group $resourceGroupName \
+
+  echo "########## Running script ##########"
+
+  printf "az vm extension set --resource-group $resourceGroupName \\
+      --vm-name $vmName \\
+      --name customScript \\
+      --publisher Microsoft.Azure.Extensions \\
+      --protected-settings '{\"commandToExecute\": \"mv /mnt/xdm/conf/semarchy.xml /mnt/xdm/conf/semarchy.xml-old ; mv /mnt/xdm/conf/tomcat-users.xml /mnt/xdm/conf/tomcat-users.xml-old\"}'\n"
+
+  echo "####################################"
+
+  az vm extension set --resource-group $resourceGroupName \
     --vm-name $vmName \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \

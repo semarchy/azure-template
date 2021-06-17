@@ -3,13 +3,13 @@
 # Help menu
 print_help() {
 cat <<-HELP
-Usage: $0 [--resource-group=resource-group-name] [--admin-password=new-admin-password]
+Usage: $0 <--resource-group=resource-group-name> [--admin-password=new-admin-password]
 HELP
 exit 1
 }
 
-serverPassword=$XDM_ADMIN_PASSWORD
 resourceGroupName=$XDM_RESOURCE_GROUP
+serverPassword=$XDM_ADMIN_PASSWORD
 # Parse Command Line Arguments
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -45,7 +45,7 @@ fi
 if ! $(az group exists --name $resourceGroupName)
 then 
 	echo " !! resource group $resourceGroupName not found."
-    exit 1;
+  exit 1;
 fi
 
 scaleSetName=$(az resource list --tag xdm-resource-type=ss-passive --query "[?resourceGroup=='$resourceGroupName'].name" -o tsv)

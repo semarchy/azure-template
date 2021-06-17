@@ -3,15 +3,15 @@
 # Help menu
 print_help() {
 cat <<-HELP
-Usage: $0 <--db-name=database-name> [--resource-group=resource-group-name] [--db-password=database-password] [--db-server-password=database-server-password] [--admin-password=admin-password]
+Usage: $0 <--db-name=database-name> <--resource-group=resource-group-name> [--db-password=database-password] [--db-server-password=database-server-password] [--admin-password=admin-password]
 HELP
 exit 1
 }
 
-serverPassword=$XDM_ADMIN_PASSWORD
 resourceGroupName=$XDM_RESOURCE_GROUP
-databaseServerPassword=$XDM_DB_SERVER_PASSWORD
 databasePassword=$XDM_DB_PASSWORD
+databaseServerPassword=$XDM_DB_SERVER_PASSWORD
+serverPassword=$XDM_ADMIN_PASSWORD
 # Parse Command Line Arguments
 while [ "$#" -gt 0 ]; do
   case "$1" in

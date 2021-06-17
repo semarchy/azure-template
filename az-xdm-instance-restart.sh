@@ -3,13 +3,13 @@
 # Help menu
 print_help() {
 cat <<-HELP
-Usage: $0 [--resource-group=resource-group-name] [--admin-password=admin-password]
+Usage: $0 <--resource-group=resource-group-name> [--admin-password=admin-password]
 HELP
 exit 1
 }
 
-serverPassword=$XDM_ADMIN_PASSWORD
 resourceGroupName=$XDM_RESOURCE_GROUP
+serverPassword=$XDM_ADMIN_PASSWORD
 # Parse Command Line Arguments
 while [ "$#" -gt 0 ]; do
   case "$1" in
