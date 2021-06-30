@@ -112,7 +112,9 @@ databaseServerId=$(echo $currentDbServerProps | jq -r '.id')
 databaseServerName=$(echo $currentDbServerProps | jq -r '.name')
 destinationDatabaseServerName=$instanceName-db-$(echo $databaseServerName | sed 's/.*-db-//')
 
-now=$(date --iso-8601=seconds)
+zone=$(date +%z)
+datetime=$(date +%Y-%m-%dT%H:%M:%S)
+now=$(echo $datetime${zone:0:3}:${zone:3:2})
 
 vmName=$(echo $currentVmProps | jq -r '.name')
 echo " --> Checking admin credentials..."

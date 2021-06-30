@@ -136,7 +136,9 @@ echo " -- $dbType database server found ($dbServerId)."
 databaseAdminUser=$(echo $currentDbServerProps | jq -r '.properties.administratorLogin')
 databaseServerName=$(echo $currentDbServerProps | jq -r '.name')
 
-now=$(date --iso-8601=seconds)
+zone=$(date +%z)
+datetime=$(date +%Y-%m-%dT%H:%M:%S)
+now=$(echo $datetime${zone:0:3}:${zone:3:2})
 
 echo " --> Checking admin credentials..."
 vmName=$(echo $currentVmProps | jq -r '.name')
