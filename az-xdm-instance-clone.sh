@@ -152,7 +152,7 @@ destinationVm=$instanceName-vm-a
 destinationSs=$instanceName-ss
 
 if ! $(az group exists --name $destinationResourceGroupName); then
-  echo " --> Creating destination resource group..."
+  echo " --> Resource group $destinationResourceGroupName not found. Creating a new resource group with name $destinationResourceGroupName...."
 
   echo "########## Running script ##########"
 
@@ -164,8 +164,7 @@ if ! $(az group exists --name $destinationResourceGroupName); then
   az group create --name $destinationResourceGroupName \
       --location $resourceGroupLocation
 else
-  echo " !! resource group with $destinationResourceGroupName name already exists. Please provide another name"
-  exit 1;
+  echo " --> Resource group $destinationResourceGroupName already exists"
 fi
 
 echo " --> Creating storage account... "
