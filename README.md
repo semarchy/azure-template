@@ -85,6 +85,7 @@ Optional Parameters:
 **NOTES**:
 * The script uses the following environment variables for commonly used values if not available in the command: `XDM_ORIGIN_RESOURCE_GROUP`, `XDM_DESTINATION_RESOURCE_GROUP`, `XDM_INSTANCE_NAME`, `XDM_ADMIN_PASSWORD`, `XDM_DB_SERVER_PASSWORD`.
 * The script prompts for passwords when they are not passed on the command line and the environments variables are not set.
+* The script generates a unique string as a suffix for database name and storage account name. If the scripts fails due to an already existing database name or storage account name, simply relaunch the script.
 
 ### Upgrade the instance: az-xdm-instance-upgrade ###
 

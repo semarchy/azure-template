@@ -57,6 +57,8 @@ fi
 
 export AZURE_HTTP_USER_AGENT='pid-ee0cf0e2-6610-4481-9d19-e1db68621749-partnercenter'
 
+uniqueString=$(LC_CTYPE=C tr -dc a-z0-9 </dev/urandom | head -c 13 ;)
+
 if ! $(az group exists --name $originResourceGroupName)
 then
 	echo " !! resource group $originResourceGroupName not found."
@@ -110,7 +112,7 @@ echo " -- $dbType database server found ($dbServerId)."
 databaseAdminUser=$(echo $currentDbServerProps | jq -r '.properties.administratorLogin')
 databaseServerId=$(echo $currentDbServerProps | jq -r '.id')
 databaseServerName=$(echo $currentDbServerProps | jq -r '.name')
-destinationDatabaseServerName=$instanceName-db-$(echo $databaseServerName | sed 's/.*-db-//')
+destinationDatabaseServerName=$instanceName-db-$uniqueString
 
 zone=$(date +%z)
 datetime=$(date +%Y-%m-%dT%H:%M:%S)
@@ -171,7 +173,7 @@ echo " --> Creating storage account... "
 
 echo "########## Running script ##########"
 
-destStorageName=${storageName/xdm/$instanceName}
+destStorageName=xdmidh${uniqueString}
 
 printf "az storage account create --resource-group $destinationResourceGroupName \\
     --name ${destStorageName} \\
