@@ -74,7 +74,7 @@ az-xdm-instance-clone.sh --origin-resource-group=xdm-production --destination-re
 
 Parameters:
 * `--origin-resource-group`: The resource group from which the instance is cloned. The resource group specified in the `XDM_ORIGIN_RESOURCE_GROUP` environment variable is used by default.
-* `--destination-resource-group`: The resource group where the instance is cloned. The resource group specified in the `XDM_DESTINATION_RESOURCE_GROUP` environment variable is used by default.
+* `--destination-resource-group`: The resource group where the instance is cloned. The resource group specified in the `XDM_DESTINATION_RESOURCE_GROUP` environment variable is used by default. If the provided resource group exists, it is used, otherwise it is created by the script (requires the user who runs the script to have R/W privileges on resource groups).
 * `--instance-name`: The new instance name that will be used as prefix for resource names. The instance name specified in the `XDM_INSTANCE_NAME` environment variable is used by default.
 
 Optional Parameters:
@@ -85,7 +85,7 @@ Optional Parameters:
 **NOTES**:
 * The script uses the following environment variables for commonly used values if not available in the command: `XDM_ORIGIN_RESOURCE_GROUP`, `XDM_DESTINATION_RESOURCE_GROUP`, `XDM_INSTANCE_NAME`, `XDM_ADMIN_PASSWORD`, `XDM_DB_SERVER_PASSWORD`.
 * The script prompts for passwords when they are not passed on the command line and the environments variables are not set.
-* The script generates a unique string as a suffix for database name and storage account name. If the scripts fails due to an already existing database name or storage account name, simply relaunch the script.
+* The script generates a unique string as a suffix for database name and storage account name. If the scripts fails due to an already existing database name or storage account name, relaunch the script to generate a new suffix.
 
 ### Upgrade the instance: az-xdm-instance-upgrade ###
 
@@ -134,6 +134,7 @@ Optional Parameters:
 * `--backup`: Use this option to add the creation of databases, virtual machines and scale set images backup resources. The backup is disabled by default.
 
 **NOTES**:
+* It is recommended to perform major upgrades either on a cloned instance (offsite upgrade) by running the `az-xdm-instance-clone` script prior to `az-xdm-instance-upgrade`, or on a backed-up instance (onsite upgrade) by using the `--backup` option.
 * The script uses the following environment variables for commonly used values if not available in the command: `XDM_RESOURCE_GROUP`, `XDM_ADMIN_PASSWORD`, `XDM_DB_SERVER_PASSWORD` and `XDM_RO_USER_PASSWORD`.
 * The script prompts for passwords when they are not passed on the command line and the environments variables are not set.
 
