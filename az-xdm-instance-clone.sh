@@ -207,7 +207,7 @@ az storage account update --resource-group $originResourceGroupName \
     --name ${storageName} \
     --default-action Allow
 
-sleep 10
+sleep 20
 
 echo " -- Storage account updated."
 
