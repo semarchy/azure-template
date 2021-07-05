@@ -177,11 +177,11 @@ elif (( versionDigits[1] > oldVersionDigits[1] )); then
 
     if ! $backup ; then
       while true; do
-          read -p "Are you performing the upgrade on a cloned or a backed up instance? (yes/no) " yn
+          read -p "The --backup option was not provided, no backup of the existing resources will be performed. Are you running the upgrade on a cloned or a backed-up instance? (yes/no) " yn
           case $yn in
               [Yy]* ) break;;
               [Nn]* ) while true; do
-                        read -p "Are you sure you want to proceed without cloning or adding --backup option? (yes/no) " yn
+                        read -p "Are you sure you want to proceed? (yes/no) " yn
                         case $yn in
                             [Yy]* ) break;;
                             [Nn]* ) exit;;
