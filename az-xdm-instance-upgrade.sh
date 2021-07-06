@@ -74,7 +74,7 @@ imageOffer=xdm-solution-vm
 if (( ${#versionDigits[@]} == 3 )); then
     if [[ ${versionDigits[2]} = "preview" ]]; then
         planName=${versionDigits[0]}'_'${versionDigits[1]}'_preview'
-        imageVersion=1.200.3
+        imageVersion=latest
         imageOffer=xdm-solution-vm-preview
     else
         planName=${versionDigits[0]}'_'${versionDigits[1]}
