@@ -98,6 +98,7 @@ az-xdm-instance-upgrade.sh
     [--admin-password=admin-password]
     [--db-server-password=db-server-password]
     [--repo-ro-password=repo-ro-password]
+    [--backup-suffix=backup-suffix]
     [--backup]
 ```
 
@@ -113,10 +114,10 @@ Example: Upgrade the instance in the xdm-production resource group to latest 5.1
 az-xdm-instance-upgrade.sh --resource-group=xdm-production --xdm-version=5.1
 ```
 
-Example: Upgrade the instance in the xdm-production resource group to latest 5.3 patch version and creating backup resources.
+Example: Upgrade the instance in the xdm-production resource group to latest 5.3 patch version and creating backup resources with 'old' as backup suffix.
 
 ```
-az-xdm-instance-upgrade.sh --resource-group=xdm-production --xdm-version=5.3 --backup
+az-xdm-instance-upgrade.sh --resource-group=xdm-production --xdm-version=5.3 --backup-suffix=old --backup
 ```
 
 Parameters:
@@ -135,6 +136,7 @@ Optional Parameters:
 
 **NOTES**:
 * It is recommended to perform major upgrades either on a cloned instance (offsite upgrade) by running the `az-xdm-instance-clone` script prior to `az-xdm-instance-upgrade`, or on a backed-up instance (onsite upgrade) by using the `--backup` option.
+* If you choose to define the `--backup-suffix` option, keep in mind that the backup resources cannot be renamed.
 * The script uses the following environment variables for commonly used values if not available in the command: `XDM_RESOURCE_GROUP`, `XDM_ADMIN_PASSWORD`, `XDM_DB_SERVER_PASSWORD` and `XDM_RO_USER_PASSWORD`.
 * The script prompts for passwords when they are not passed on the command line and the environments variables are not set.
 

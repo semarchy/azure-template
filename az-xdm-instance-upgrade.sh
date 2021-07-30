@@ -3,7 +3,7 @@
 # Help menu
 print_help() {
 cat <<-HELP
-Usage: $0 <--xdm-version=version> <--resource-group=resource-group-name> [--admin-password=admin-password] [--db-server-password=db-server-password] [--repo-ro-password=repo-ro-password] [--backup]
+Usage: $0 <--xdm-version=version> <--resource-group=resource-group-name> [--admin-password=admin-password] [--db-server-password=db-server-password] [--repo-ro-password=repo-ro-password] [--backup-suffix=backup-suffix] [--backup]
 HELP
 exit 1
 }
@@ -31,6 +31,9 @@ while [ "$#" -gt 0 ]; do
         ;;
     --repo-ro-password=*)
         repositoryReadOnlyUserPassword="${1#*=}"
+        ;;
+    --backup-suffix=*)
+        backupSuffix="${1#*=}"
         ;;
     --backup*)
         backup=true
@@ -60,9 +63,23 @@ fi
 
 export AZURE_HTTP_USER_AGENT='pid-ee0cf0e2-6610-4481-9d19-e1db68621749-partnercenter'
 
+if $backup ; then
+    if [[ ${#backupSuffix} -ge 7 ]]
+    then
+        echo " !! Backup suffix too long. The backup suffix length must be between 1 and 6 characters"
+        exit 1;
+    fi
+
+    if [[ -z $backupSuffix ]]
+    then
+        backupSuffix=$(LC_CTYPE=C tr -dc a-z0-9 </dev/urandom | head -c 6 ;)
+        echo " --> No backup suffix provided a default one will be used: $backupSuffix"
+    fi
+fi
+
 if ! $(az group exists --name $resourceGroupName)
 then 
-	echo " !! resource group $resourceGroupName not found."
+	  echo " !! resource group $resourceGroupName not found."
     exit 1;
 fi
 
@@ -230,14 +247,14 @@ if $backup ; then
     printf "az postgres server restore --restore-point-in-time $now \\
         --resource-group $resourceGroupName \\
         --source-server $databaseServerName \\
-        --name $databaseServerName-backup\n"
+        --name $databaseServerName-$backupSuffix\n"
 
     echo "####################################"
 
     az postgres server restore --restore-point-in-time $now \
         --resource-group $resourceGroupName \
         --source-server $databaseServerName \
-        --name $databaseServerName-backup
+        --name $databaseServerName-$backupSuffix
   else
     for databaseName in $(az sql db list --ids $dbServerId | jq -r '.[] | select(.name != "master") | .name '); do
       echo "########## Running script ##########"
@@ -246,7 +263,7 @@ if $backup ; then
           --resource-group $resourceGroupName \\
           --server $databaseServerName \\
           --name $databaseName \\
-          --dest-name $databaseName-backup\n"
+          --dest-name $databaseName-$backupSuffix\n"
 
       echo "####################################"
 
@@ -254,7 +271,7 @@ if $backup ; then
           --resource-group $resourceGroupName \
           --server $databaseServerName \
           --name $databaseName \
-          --dest-name $databaseName-backup
+          --dest-name $databaseName-$backupSuffix
     done
   fi
 
@@ -263,7 +280,7 @@ if $backup ; then
   echo "########## Running script ##########"
 
   printf "az vmss create --resource-group $resourceGroupName \\
-      --name $scaleSetName-backup \\
+      --name $scaleSetName-$backupSuffix \\
       --admin-password <password> \\
       --admin-username $serverUser \\
       --authentication-type password \\
@@ -283,7 +300,7 @@ if $backup ; then
   echo "####################################"
 
   az vmss create --resource-group $resourceGroupName \
-      --name $scaleSetName-backup \
+      --name $scaleSetName-$backupSuffix \
       --admin-password "$serverPassword" \
       --admin-username "$serverUser" \
       --authentication-type password \
@@ -304,7 +321,7 @@ if $backup ; then
 
   printf "az vmss extension set \\
     --resource-group $resourceGroupName \\
-    --vmss-name $scaleSetName-backup \\
+    --vmss-name $scaleSetName-$backupSuffix \\
     --name customScript \\
     --publisher Microsoft.Azure.Extensions \\
     --protected-settings {\"commandToExecute\": \"/usr/local/xdm/bin/init-ss-ubuntu.sh --storage-name=\"$storageName\" --storage-key=<storage key> --storage-folder=xdm-assets --server-user=\"$serverUser\" --server-password=<server password> \"}\n"
@@ -313,7 +330,7 @@ if $backup ; then
 
   az vmss extension set \
     --resource-group $resourceGroupName \
-    --vmss-name $scaleSetName-backup \
+    --vmss-name $scaleSetName-$backupSuffix \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
     --protected-settings '{"commandToExecute": "/usr/local/xdm/bin/init-ss-ubuntu.sh --storage-name=\"'$storageName'\" --storage-key=\"'$storageKey'\" --storage-folder=xdm-assets --server-user=\"'$serverUser'\" --server-password=\"'$serverPassword'\""}'
@@ -325,7 +342,7 @@ if $backup ; then
   echo "########## Running script ##########"
 
   printf "az vm create --resource-group $resourceGroupName \\
-      --name $vmName-backup \\
+      --name $vmName-$backupSuffix \\
       --admin-password <password> \\
       --admin-username $serverUser \\
       --authentication-type password \\
@@ -345,7 +362,7 @@ if $backup ; then
   echo "####################################"
 
   az vm create --resource-group $resourceGroupName \
-      --name $vmName-backup \
+      --name $vmName-$backupSuffix \
       --admin-password "$serverPassword" \
       --admin-username "$serverUser" \
       --authentication-type password \
